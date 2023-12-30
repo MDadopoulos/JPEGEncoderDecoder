@@ -1,4 +1,8 @@
+
+import cv2 as cv2
 import numpy as np
+
+
 
 def dct(block):
     # Apply 2D DCT on the block
@@ -35,17 +39,11 @@ def idct(dct_block):
 
 
 
-import cv2 as cv2
-import numpy as np
-
 def doDct(inputMatrix):
     fltMatrix = np.float32(inputMatrix)/255.0
     fltDct = cv2.dct(fltMatrix)
     return np.uint8(fltMatrix * 255)
 
-
-import cv2
-import numpy as np
 
 def blockDCT(block):
     """

@@ -103,7 +103,3 @@ def ensure_dimensions(image, multiple_of=8):
     top = diff_height // 2
     bottom = diff_height - top
     return image[left:width-right, top:height-bottom, :]
-
-img = cv2.imread('baboon.png')
-img1 = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
-
