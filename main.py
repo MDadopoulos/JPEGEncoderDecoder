@@ -1,6 +1,7 @@
 from preprocessing import convert2ycrcb, convert2rgb, ensure_dimensions
 from DCT_transform import blockDCT, iBlockDCT
 from quantization import quantizeJPEG, dequantizeJPEG
+from zigzag_RLE import runLength, irunLength
 import cv2
 import numpy as np
 
@@ -16,9 +17,12 @@ reconstructed_imageRGB = convert2rgb(imageY, imageCr, imageCb, subimg)
 
 
 # Example usage DCT transform
-block = np.random.rand(8, 8)  # Example 8x8 block
+block = np.random.rand(8, 8)*255  # Example 8x8 block
 dctBlock = blockDCT(block)
-print(dctBlock.shape)
+print("Original block:")
+print(block)
+print("\nDCT block:")
+print(dctBlock)
 # reconstructed_block = iBlockDCT(dctBlock)
 
 # Example usage quantization
@@ -57,3 +61,13 @@ print(qBlock)
 print("\nDequantized DCT Block:")
 print(dequantizedDctBlock)
 
+
+# Example usage of run-length encoding
+# Assume qBlock is an 8x8 quantized block of DCT coefficients,
+# and DCpred is the predicted DC coefficient from the previous block.
+
+DCpred = 0  # Example DC coefficient prediction
+runSymbols = runLength(qBlock, DCpred)
+print(runSymbols)
+decoded_qBlock = irunLength(runSymbols, DCpred)
+print(decoded_qBlock)

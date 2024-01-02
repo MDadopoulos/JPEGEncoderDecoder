@@ -4,47 +4,6 @@ import numpy as np
 
 
 
-def dct(block):
-    # Apply 2D DCT on the block
-    dct_block = np.zeros_like(block, dtype=float)
-    M, N = block.shape
-    for u in range(M):
-        for v in range(N):
-            alpha_u = np.sqrt(1/M) if u == 0 else np.sqrt(2/M)
-            alpha_v = np.sqrt(1/N) if v == 0 else np.sqrt(2/N)
-            sum_val = 0.0
-            for x in range(M):
-                for y in range(N):
-                    cos_val = np.cos(((2*x + 1) * u * np.pi) / (2 * M)) * np.cos(((2*y + 1) * v * np.pi) / (2 * N))
-                    sum_val += block[x, y] * cos_val
-            dct_block[u, v] = alpha_u * alpha_v * sum_val
-    return dct_block
-
-def idct(dct_block):
-    # Apply 2D inverse DCT on the block
-    block = np.zeros_like(dct_block, dtype=float)
-    M, N = dct_block.shape
-    for x in range(M):
-        for y in range(N):
-            sum_val = 0.0
-            for u in range(M):
-                for v in range(N):
-                    alpha_u = np.sqrt(1/M) if u == 0 else np.sqrt(2/M)
-                    alpha_v = np.sqrt(1/N) if v == 0 else np.sqrt(2/N)
-                    cos_val = np.cos(((2*x + 1) * u * np.pi) / (2 * M)) * np.cos(((2*y + 1) * v * np.pi) / (2 * N))
-                    sum_val += alpha_u * alpha_v * dct_block[u, v] * cos_val
-            block[x, y] = sum_val
-    return block
-
-
-
-
-def doDct(inputMatrix):
-    fltMatrix = np.float32(inputMatrix)/255.0
-    fltDct = cv2.dct(fltMatrix)
-    return np.uint8(fltMatrix * 255)
-
-
 def blockDCT(block):
     """
     Applies Discrete Cosine Transform (DCT) to a block.
