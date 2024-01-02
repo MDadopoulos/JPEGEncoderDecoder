@@ -13,8 +13,8 @@ def convert2ycrcb(imageRGB, subimg):
     """
 
     # Convert to YCrCb
-    imgYCrCb = cv2.cvtColor(img, cv2.COLOR_RGB2YCrCb    )
-    imgY, imgCb, imgCr = imgYCrCb[:,:,0], imgYCrCb[:,:,1], imgYCrCb[:,:,2]
+    imgYCrCb = cv2.cvtColor(imageRGB, cv2.COLOR_RGB2YCrCb    )
+    imageY, imgCb, imgCr = imgYCrCb[:,:,0], imgYCrCb[:,:,1], imgYCrCb[:,:,2]
     # Determine subsampling and upsample Cr and Cb channels
     if subimg[0] == 4 and subimg[1] == 2 and subimg[2] == 0:
         imageCb=np.zeros((imgCb.shape[0]//2, imgCb.shape[1] // 2), dtype=np.uint8)
@@ -77,8 +77,8 @@ def convert2rgb(imageY, imageCr, imageCb, subimg):
     # Merge and convert back to RGB
     imageYCrCb = cv2.merge((imgY, imgCr, imgCb))
     
-    imageRGB = cv2.cvtColor(imageYCrCb, cv2.COLOR_YCrCb2RBG)
-
+    imageRGB = cv2.cvtColor(imageYCrCb, cv2.COLOR_YCrCb2RGB)
+    #cv2.COLOR_YCR_CB2BGR
 
     return imageRGB
 
