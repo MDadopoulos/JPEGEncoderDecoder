@@ -1,37 +1,66 @@
 
 import numpy as np
+from tables import huffman_table_DC_luminance,huffman_table_DC_chrominance ,huffman_table_AC_luminance,huffman_table_AC_chrominance
 
 
-huffman_tables = {
-    'luminance_dc': {
-        0: '00', 1: '010', 2: '011', 3: '100', 4: '101', 5: '110',
-        6: '1110', 7: '11110', 8: '111110', 9: '1111110', 10: '11111110', 11: '111111110'
-    },
-    'chrominance_dc': {
-        0: '00', 1: '01', 2: '10', 3: '110', 4: '1110', 5: '11110',
-        6: '111110', 7: '1111110', 8: '11111110', 9: '111111110', 10: '1111111110', 11: '11111111110'
-    }
-}
 
-def huffEnc(runSymbols, huffman_table):
+def calculate_category(value):
+    """
+    Calculate the  magnitudes category SSSS for Huffman encoding,
+    12 categories for DC coefficients and 11 for AC coefficients
+    """
+    if value == 0:
+        return 0
+    magnitude = abs(value)
+    category = 0
+    while magnitude:
+        magnitude >>= 1
+        category += 1
+    return category
+
+
+##sshould i do something for the negative one??diff-1? the value or the binary -1?
+def huffEnc(runSymbols, huffman_table_AC,huffman_table_DC):
     """
     Encodes run-length symbols using Huffman coding based on the provided Huffman table.
+    first should categorize the amplitude to get the category of it and then encode it using the huffman table ,
+    it should be at the form of 0,0 or 0/0 to find it in the dictionary to binary
+    the first pair is the DC coefficient and the others are the AC coefficient
     """
     huffStream = ''
-    for run, symbol in runSymbols:
-        category = int(np.log2(abs(symbol))) if symbol != 0 else 0
-        huffCode = huffman_table[category]
-        additionalBits = '{0:b}'.format(symbol) if symbol > 0 else '{0:b}'.format(-symbol)
-        huffStream += huffCode + additionalBits
+    for index,values in enumerate(runSymbols):
+        run=values[0]
+        symbol=values[1]
+        category = calculate_category(symbol)
+        if index==0:
+            huffCode = huffman_table_DC[category]
+            huffStream += huffCode
+            continue
+        huffCode = huffman_table_AC[(run,category)]
+        huffStream += huffCode 
     return huffStream
 
-def huffDec(huffStream, huffman_table):
+
+# decoded_message = ''
+# current_code = ''
+
+# for bit in encoded_data:
+#     current_code += bit
+#     if current_code in huffman_dict:
+#         decoded_message += huffman_dict[current_code]
+#         current_code = ''
+
+
+
+
+
+def huffDec(huffStream, huffman_table_AC,huffman_table_DC):
     """
     Decodes a stream of bits into run-length symbols using the provided Huffman table.
     """
     runSymbols = []
     while huffStream:
-        for category, huffCode in huffman_table.items():
+        for category, huffCode in huffman_table_DC.items():
             if huffStream.startswith(huffCode):
                 huffStream = huffStream[len(huffCode):]
                 if category == 0:
@@ -55,64 +84,8 @@ def huffDec(huffStream, huffman_table):
 
 
 
-######
-# Huffman tables for luminance and chrominance DC coefficient differences
-huffman_table_luminance = {
-    0: '00',
-    1: '010',
-    2: '011',
-    3: '100',
-    4: '101',
-    5: '110',
-    6: '1110',
-    7: '11110',
-    8: '111110',
-    9: '1111110',
-    10: '11111110',
-    11: '111111110'
-}
+##
 
-huffman_table_chrominance = {
-    0: '00',
-    1: '01',
-    2: '10',
-    3: '110',
-    4: '1110',
-    5: '11110',
-    6: '111110',
-    7: '1111110',
-    8: '11111110',
-    9: '111111110',
-    10: '1111111110',
-    11: '11111111110'
-}
-
-def huffEnc(runSymbols):
-    """
-    Encodes run length symbols using Huffman coding.
-    """
-    huffStream = ''
-    for run, symbol in runSymbols:
-        # Assuming the runSymbols are for luminance DC coefficients
-        category = calculate_category(symbol)
-        huffStream += huffman_table_luminance[category]
-        # Encode the additional bits for the symbol if necessary
-        if category > 0:
-            huffStream += format(symbol & ((1 << category) - 1), '0' + str(category) + 'b')
-    return huffStream
-
-def calculate_category(value):
-    """
-    Calculate the category of a value for Huffman encoding.
-    """
-    if value == 0:
-        return 0
-    magnitude = abs(value)
-    category = 0
-    while magnitude:
-        magnitude >>= 1
-        category += 1
-    return category
 
 def huffDec(huffStream):
     """
@@ -137,48 +110,47 @@ def huffDec(huffStream):
                 break
     return runSymbols
 
-# Example usage:
-# Assume we have a list of run length symbols
-# runSymbols = [(0, 0), (0, -3), (2, 2), ...]
-
-# Encoding
-# huffStream = huffEnc(runSymbols)
-
-# Decoding
-# decodedRunSymbols = huffDec(huffStream)
 
 
 
+# ##
+# ###
+# def huffEnc(runSymbols, huffmanTable):
+#     huffStream = ""
+#     for symbol in runSymbols:
+#         huffStream += huffmanTable[symbol]
+#     return huffStream
+
+# def huffDec(huffStream, huffmanTable):
+#     runSymbols = []
+#     temp = ""
+#     for bit in huffStream:
+#         temp += bit
+#         if temp in huffmanTable.values():
+#             runSymbols.append(get_key(temp, huffmanTable))
+#             temp = ""
+#     return runSymbols
+
+# def get_key(val, my_dict):
+#     for key, value in my_dict.items():
+#         if val == value:
+#             return key
 
 
-##
-###
-def huffEnc(runSymbols, huffmanTable):
-    huffStream = ""
-    for symbol in runSymbols:
-        huffStream += huffmanTable[symbol]
-    return huffStream
 
-def huffDec(huffStream, huffmanTable):
-    runSymbols = []
-    temp = ""
-    for bit in huffStream:
-        temp += bit
-        if temp in huffmanTable.values():
-            runSymbols.append(get_key(temp, huffmanTable))
-            temp = ""
-    return runSymbols
 
-def get_key(val, my_dict):
-    for key, value in my_dict.items():
-        if val == value:
-            return key
 
-# Example Huffman Tables (These would be filled with actual values from the provided tables)
-huffmanTableDC = {"0/0": "101", "0/1": "110", ...}  # DC coefficients
-huffmanTableAC = {"1/1": "010", "1/2": "011", ...}  # AC coefficients
-
-# Example usage
-runSymbols = ["0/0", "1/1", ...]
-encodedStream = huffEnc(runSymbols, huffmanTableDC)  # Encoding
-decodedSymbols = huffDec(encodedStream, huffmanTableDC)  # Decoding
+# def huffEnc(runSymbols, huffman_table):
+#     """
+#     Encodes run-length symbols using Huffman coding based on the provided Huffman table.
+#     first should categorize the amplitude to get the category of it and then encode it using the huffman table ,
+#     it should be at the form of 0,0 or 0/0 to find it in the dictionary to binary
+#     the first pair is the DC coefficient and the others are the AC coefficient
+#     """
+#     huffStream = ''
+#     for run, symbol in runSymbols:
+#         category = calculate_category(symbol)
+#         huffCode = huffman_table[category]
+#         additionalBits = '{0:b}'.format(symbol) if symbol > 0 else '{0:b}'.format(-symbol)
+#         huffStream += huffCode + additionalBits
+#     return huffStream
