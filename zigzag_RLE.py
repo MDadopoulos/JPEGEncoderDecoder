@@ -44,13 +44,10 @@ def runLength(qBlock, DCpred):
         if qBlock[i, j] == 0:
             zeros += 1
         else:
-            while zeros > 15:
-                runSymbols.append((15, 0))
-                zeros -= 16
             runSymbols.append((zeros, qBlock[i, j]))
             zeros = 0
     if zeros > 0:
-        runSymbols.append((0, 0))  # End-of-block (EOB)
+        runSymbols.append((zeros, 0))  # End-of-block (EOB)
 
     return runSymbols
 
@@ -70,7 +67,7 @@ def irunLength(runSymbols, DCpred):
     # Process AC coefficients
     ac_index = 1  # Start with the first AC coefficient
     for zeros, coeff in runSymbols[1:]:
-        if zeros == 0 and coeff == 0:  # Check for end-of-block (EOB)
+        if coeff == 0:  # Check for end-of-block (EOB)
             break
         ac_index += zeros
         if ac_index >= len(zz_order):
@@ -80,3 +77,47 @@ def irunLength(runSymbols, DCpred):
         ac_index += 1
 
     return qBlock
+
+
+#    # Process AC coefficients
+    # zeros = 0
+    # for i, j in zz_order[1:]:  # Skip the DC coefficient
+    #     if qBlock[i, j] == 0:
+    #         zeros += 1
+    #     else:
+    #         while zeros > 15:
+    #             runSymbols.append((15, 0))
+    #             zeros -= 16
+    #         runSymbols.append((zeros, qBlock[i, j]))
+    #         zeros = 0
+    # if zeros > 0:
+    #     runSymbols.append((0, 0))  # End-of-block (EOB)
+
+    # return runSymbols
+
+# def irunLength(runSymbols, DCpred):
+#     """
+#     Decodes run-length encoded symbols into a quantized block of DCT coefficients.
+#     """
+#     # Get the zigzag order and convert it to (row, column) coordinates
+#     zz_order = index_to_coordinate(zigzag_index())
+
+#     # Create a zeroed 8x8 block
+#     qBlock = np.zeros((8, 8), dtype=int)
+
+#     # Set the DC coefficient
+#     qBlock[0, 0] = runSymbols[0][1] + DCpred  # Add DCpred to the DC coefficient
+
+#     # Process AC coefficients
+#     ac_index = 1  # Start with the first AC coefficient
+#     for zeros, coeff in runSymbols[1:]:
+#         if zeros == 0 and coeff == 0:  # Check for end-of-block (EOB)
+#             break
+#         ac_index += zeros
+#         if ac_index >= len(zz_order):
+#             break
+#         i, j = zz_order[ac_index]
+#         qBlock[i, j] = coeff
+#         ac_index += 1
+
+#     return qBlock
