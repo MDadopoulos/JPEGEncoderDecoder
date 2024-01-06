@@ -18,8 +18,49 @@ def calculate_category(value):
         category += 1
     return category
 
+def get_low_order_bits(DIFF, SSSS):
+    # Adjust for negative DIFF
+    if DIFF < 0:
+        # Subtract 1 from DIFF for negative numbers
+        DIFF = DIFF - 1
 
-##sshould i do something for the negative one??diff-1? the value or the binary -1?
+    # Creating a bitmask with SSSS bits set to 1 in its binary representation.
+    #This is typically a number like 2**SSSS - 1 or (1 << SSSS) - 1.
+    bitmask = (1 << SSSS) - 1
+
+    # Performing a bitwise AND to get the low order bits
+    low_order_bits = DIFF & bitmask
+
+    # Convert to binary string and remove the prefix '0b' and pad the binary to have SSSS bits if needed
+    low_order_bits = bin(low_order_bits)[2:].zfill(SSSS)
+    return low_order_bits
+
+
+# This is typically used in the Huffman decoding process where `value` is the additional bits
+# that were used along with the Huffman code to represent the quantized coefficient.
+# The `category` (SSSS) is the number of additional bits used, derived from the Huffman code.
+
+def extend(value, T):
+    """
+    Converts the partially decoded DIFF value of precision T to the full precision difference
+    Parameters:
+    value (int): The decoded value V.
+    T (int): The category SSSS for Huffman encoding.
+    
+    Returns:
+    int: The extended value.
+    """
+    Vt = 2 ** (T - 1)
+    if value < Vt:
+        return value - (2 ** T) + 1
+    else:
+        return value
+
+
+
+
+
+
 def huffEnc(runSymbols, huffman_table_AC,huffman_table_DC):
     """
     Encodes run-length symbols using Huffman coding based on the provided Huffman table.
@@ -32,24 +73,13 @@ def huffEnc(runSymbols, huffman_table_AC,huffman_table_DC):
         run=values[0]
         symbol=values[1]
         category = calculate_category(symbol)
+        lowOrderBits=get_low_order_bits(symbol, category)
         if index==0:
             huffCode = huffman_table_DC[category]
-            huffStream += huffCode
-            continue
-        huffCode = huffman_table_AC[(run,category)]
-        huffStream += huffCode 
+        else:
+            huffCode = huffman_table_AC[(run,category)]
+        huffStream += huffCode + lowOrderBits
     return huffStream
-
-
-# decoded_message = ''
-# current_code = ''
-
-# for bit in encoded_data:
-#     current_code += bit
-#     if current_code in huffman_dict:
-#         decoded_message += huffman_dict[current_code]
-#         current_code = ''
-
 
 
 
@@ -59,8 +89,27 @@ def huffDec(huffStream, huffman_table_AC,huffman_table_DC):
     Decodes a stream of bits into run-length symbols using the provided Huffman table.
     """
     runSymbols = []
+    for category, huffCode in huffman_table_DC.items():
+        if huffStream.startswith(huffCode):
+            #the DECODE procedure
+            huffStream = huffStream[len(huffCode):]
+            if category == 0:
+                symbol = 0
+            else:
+                #the RECEIVE procedure
+                additionalBits = huffStream[:category]
+                symbol = int(additionalBits, 2) 
+                if additionalBits[0] == '0':
+                    # If the number is negative, convert to 2's complement
+                    symbol = symbol - (1 << category) + 1
+                    #the EXTEND procedure
+                    symbol = extend(symbol, category)
+                
+                huffStream = huffStream[category:]
+            runSymbols.append((0, symbol))
+            break
     while huffStream:
-        for category, huffCode in huffman_table_DC.items():
+        for category, huffCode in huffman_table_AC.items():
             if huffStream.startswith(huffCode):
                 huffStream = huffStream[len(huffCode):]
                 if category == 0:
@@ -83,43 +132,6 @@ def huffDec(huffStream, huffman_table_AC,huffman_table_DC):
 
 
 
-
-##
-
-
-def huffDec(huffStream):
-    """
-    Decodes a Huffman encoded bit stream into run length symbols.
-    """
-    runSymbols = []
-    i = 0
-    while i < len(huffStream):
-        # Find the category by matching the prefix in the Huffman table
-        for category, code in huffman_table_luminance.items():
-            if huffStream.startswith(code, i):
-                i += len(code)
-                if category == 0:
-                    runSymbols.append((0, 0))
-                else:
-                    additional_bits = huffStream[i:i+category]
-                    i += category
-                    symbol = int(additional_bits, 2)
-                    if symbol < (1 << (category - 1)):
-                        symbol -= (1 << category) - 1
-                    runSymbols.append((0, symbol))
-                break
-    return runSymbols
-
-
-
-
-# ##
-# ###
-# def huffEnc(runSymbols, huffmanTable):
-#     huffStream = ""
-#     for symbol in runSymbols:
-#         huffStream += huffmanTable[symbol]
-#     return huffStream
 
 # def huffDec(huffStream, huffmanTable):
 #     runSymbols = []
