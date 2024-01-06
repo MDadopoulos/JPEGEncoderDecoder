@@ -111,58 +111,34 @@ def huffDec(huffStream, huffman_table_AC,huffman_table_DC):
     while huffStream:
         for category, huffCode in huffman_table_AC.items():
             if huffStream.startswith(huffCode):
+                #the DECODE procedure
                 huffStream = huffStream[len(huffCode):]
-                if category == 0:
-                    symbol = 0
-                else:
-                    additionalBits = huffStream[:category]
-                    symbol = int(additionalBits, 2) if additionalBits[0] == '1' else -int(additionalBits, 2)
-                    huffStream = huffStream[category:]
-                runSymbols.append((0, symbol))  # Assuming only DC components for simplicity
+                R = category[0]
+                SSSS=category[1]
+                #the RECEIVE procedure
+                additionalBits = huffStream[:SSSS]
+                symbol = int(additionalBits, 2) 
+                if additionalBits[0] == '0':
+                    # If the number is negative, convert to 2's complement
+                    symbol = symbol - (1 << SSSS) + 1
+                    #the EXTEND procedure
+                    symbol = extend(symbol, SSSS)
+                
+                huffStream = huffStream[SSSS:]
+                runSymbols.append((R, symbol))
                 break
     return runSymbols
 
-# Example usage:
-# Assuming runSymbols is the output from the runLength function
-# huffman_table = huffman_tables['luminance_dc']  # or 'chrominance_dc' based on the component
-# huffStream = huffEnc(runSymbols, huffman_table)
-# decodedRunSymbols = huffDec(huffStream, huffman_table)
 
 
 
 
 
 
-# def huffDec(huffStream, huffmanTable):
-#     runSymbols = []
-#     temp = ""
-#     for bit in huffStream:
-#         temp += bit
-#         if temp in huffmanTable.values():
-#             runSymbols.append(get_key(temp, huffmanTable))
-#             temp = ""
-#     return runSymbols
-
-# def get_key(val, my_dict):
-#     for key, value in my_dict.items():
-#         if val == value:
-#             return key
 
 
 
 
 
-# def huffEnc(runSymbols, huffman_table):
-#     """
-#     Encodes run-length symbols using Huffman coding based on the provided Huffman table.
-#     first should categorize the amplitude to get the category of it and then encode it using the huffman table ,
-#     it should be at the form of 0,0 or 0/0 to find it in the dictionary to binary
-#     the first pair is the DC coefficient and the others are the AC coefficient
-#     """
-#     huffStream = ''
-#     for run, symbol in runSymbols:
-#         category = calculate_category(symbol)
-#         huffCode = huffman_table[category]
-#         additionalBits = '{0:b}'.format(symbol) if symbol > 0 else '{0:b}'.format(-symbol)
-#         huffStream += huffCode + additionalBits
-#     return huffStream
+
+
