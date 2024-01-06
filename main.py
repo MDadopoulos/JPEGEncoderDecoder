@@ -2,6 +2,8 @@ from preprocessing import convert2ycrcb, convert2rgb, ensure_dimensions
 from DCT_transform import blockDCT, iBlockDCT
 from quantization import quantizeJPEG, dequantizeJPEG
 from zigzag_RLE import runLength, irunLength
+from tables import huffman_table_DC_luminance,huffman_table_DC_chrominance ,huffman_table_AC_luminance,huffman_table_AC_chrominance
+from huffman import huffEnc,huffDec
 import cv2
 import numpy as np
 
@@ -58,6 +60,7 @@ dequantizedDctBlock = dequantizeJPEG(qBlock, luminance_qTable, qScale)
 
 print("Quantized Block:")
 print(qBlock)
+#here in quantization not perfectly quantized..error in dewuantization
 print("\nDequantized DCT Block:")
 print(dequantizedDctBlock)
 
@@ -71,3 +74,16 @@ runSymbols = runLength(qBlock, DCpred)
 print(runSymbols)
 decoded_qBlock = irunLength(runSymbols, DCpred)
 print(decoded_qBlock)
+
+# Example usage of Huffman encoding
+# Assume runSymbols is a list of run-length symbols,    
+# and huffman_table_DC and huffman_table_AC are the Huffman tables for DC and AC coefficients, respectively.
+huffStream=huffEnc(runSymbols, huffman_table_DC_luminance,huffman_table_AC_luminance)
+print(huffStream)
+
+# Example usage of Huffman decoding
+# Assume huffStream is a list of bits representing the Huffman stream, 
+#and huffman_table_DC and huffman_table_AC are the Huffman tables for DC and AC coefficients, respectively.
+
+runSymbol=huffDec(huffStream, huffman_table_DC_luminance,huffman_table_AC_luminance)
+print(runSymbol)
