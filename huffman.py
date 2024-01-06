@@ -1,7 +1,5 @@
 
 import numpy as np
-from tables import huffman_table_DC_luminance,huffman_table_DC_chrominance ,huffman_table_AC_luminance,huffman_table_AC_chrominance
-
 
 
 def calculate_category(value):
@@ -71,7 +69,7 @@ def huffEnc(runSymbols, huffman_table_AC,huffman_table_DC):
     huffStream = ''
     for index,values in enumerate(runSymbols):
         run=values[0]
-        symbol=values[1]
+        symbol=int(values[1])
         category = calculate_category(symbol)
         lowOrderBits=get_low_order_bits(symbol, category)
         if index==0:
@@ -128,17 +126,4 @@ def huffDec(huffStream, huffman_table_AC,huffman_table_DC):
                 runSymbols.append((R, symbol))
                 break
     return runSymbols
-
-
-
-
-
-
-
-
-
-
-
-
-
 
