@@ -59,7 +59,7 @@ def extend(value, T):
 
 
 
-def huffEnc(runSymbols, huffman_table_AC,huffman_table_DC):
+def huffEnc(runSymbols, huffman_table_DC,huffman_table_AC):
     """
     Encodes run-length symbols using Huffman coding based on the provided Huffman table.
     first should categorize the amplitude to get the category of it and then encode it using the huffman table ,
@@ -82,7 +82,7 @@ def huffEnc(runSymbols, huffman_table_AC,huffman_table_DC):
 
 
 
-def huffDec(huffStream, huffman_table_AC,huffman_table_DC):
+def huffDec(huffStream, huffman_table_DC,huffman_table_AC):
     """
     Decodes a stream of bits into run-length symbols using the provided Huffman table.
     """
