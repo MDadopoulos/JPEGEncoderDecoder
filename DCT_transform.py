@@ -2,7 +2,8 @@
 import cv2 as cv2
 import numpy as np
 
-
+# Set the precision for the DCT coefficients
+P=8
 
 def blockDCT(block):
     """
@@ -14,10 +15,16 @@ def blockDCT(block):
     Returns:
     numpy.ndarray: DCT coefficients of the block.
     """
-    fltblock = np.float32(block) / 255.0  # Normalize the block
-    fltDct = cv2.dct(fltblock)            # Apply DCT
-    dctBlock = np.uint8(fltDct * 255)     # Convert back to 8-bit format (rescale)
 
+    #Apply level shift for DCT compression  
+    shift_value = 2 ** (P - 1)
+    block=block - shift_value 
+    # Convert from int to float and normalize
+    fltblock = np.float32(block) / 255.0 
+    # Apply DCT
+    fltDct = cv2.dct(fltblock)    
+    # Convert back to int format (rescale)       
+    dctBlock = np.int32(fltDct * 255)     
     return dctBlock
 
 def iBlockDCT(dctBlock):
@@ -30,15 +37,30 @@ def iBlockDCT(dctBlock):
     Returns:
     numpy.ndarray: The reconstructed block after applying iDCT.
     """
-    # Convert from 8-bit to float and normalize
-    fltDctBlock = np.float32(dctBlock) / 255.0
+
+    # Convert from int to float and normalize
+    dctBlock = np.float32(dctBlock) / 255.0
 
     # Apply inverse DCT
-    fltBlock = cv2.idct(fltDctBlock)
+    fltBlock = cv2.idct(dctBlock)
 
-    # Rescale back to original range and convert to 8-bit
-    reconstructedBlock = np.uint8(fltBlock * 255)
+    # Rescale back to original range and convert to int
+    reconstructedBlock = np.int32(fltBlock * 255)
 
-    return reconstructedBlock
+    #Apply inverse level shift
+    shift_value = 2 ** (P - 1)
+    DctBlock=reconstructedBlock + shift_value
 
+    return DctBlock#reconstructedBlock
 
+if __name__ == "__main__":
+    # Example usage DCT transform
+    block = np.random.rand(8, 8)*255  # Example 8x8 block
+    dctBlock = blockDCT(block)
+    print("Original block:")
+    print(block)
+    print("\nDCT block:")
+    print(dctBlock)
+    reconstructed_block = iBlockDCT(dctBlock)
+    print("\nReconstructed block:")
+    print(reconstructed_block)

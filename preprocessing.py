@@ -147,14 +147,39 @@ if __name__ == "__main__":
 
     # Read image
     original_imageRGB = cv2.imread('baboon.png')
-    cv2.imshow('original',original_imageRGB)
+    #cv2.imshow('original',original_imageRGB)
     # Ensure dimensions are multiples of 8
     resized_imageRGB = ensure_dimensions(original_imageRGB)
 
-    #print(resized_imageRGB[:,:,1])
     subimg = [4, 2, 2]  # Example subsampling matrix
-    #print(resized_imageRGB[:,:,1])
+    print(resized_imageRGB[:,:,1])
+    print("Minimum value of imageY:", np.min(resized_imageRGB[:,:,0]))
+    print("Maximum value of imageY:", np.max(resized_imageRGB[:,:,0]))
+          
+    print("Minimum value of imageCr:", np.min(resized_imageRGB[:,:,1]))
+    print("Maximum value of imageCr:", np.max(resized_imageRGB[:,:,1]))
+    print("Minimum value of imageCb:", np.min(resized_imageRGB[:,:,2]))
+    print("Maximum value of imageCb:", np.max(resized_imageRGB[:,:,2]))
+
     imageY, imageCr, imageCb = convert2ycrcb(resized_imageRGB, subimg)
+    print("Minimum value of imageY:", np.min(imageY))
+    print("Maximum value of imageY:", np.max(imageY))
+
+    print("Minimum value of imageCr:", np.min(imageCr))
+    print("Maximum value of imageCr:", np.max(imageCr))
+    print(type(imageCb))
+    print("Minimum value of imageCb:", np.min(imageCb))
+    print("Maximum value of imageCb:", np.max(imageCb))
+    #print(min(imageCr),max(imageCr))
     reconstructed_imageRGB = convert2rgb(imageY, imageCr, imageCb, subimg)
-    cv2.imshow('reconstructed',reconstructed_imageRGB)
-    #print(reconstructed_imageRGB[:,:,1])
+    #cv2.imshow('reconstructed',reconstructed_imageRGB)
+    print(reconstructed_imageRGB[:,:,1])
+    print(type(reconstructed_imageRGB[1,1,1]))
+    print("Minimum value of imageY:", np.min(reconstructed_imageRGB[:,:,0]))
+    print("Maximum value of imageY:", np.max(reconstructed_imageRGB[:,:,0]))
+
+    print("Minimum value of imageCr:", np.min(reconstructed_imageRGB[:,:,1]))
+    print("Maximum value of imageCr:", np.max(reconstructed_imageRGB[:,:,1]))
+    print(type(imageCb[2,2]))
+    print("Minimum value of imageCb:", np.min(reconstructed_imageRGB[:,:,2]))
+    print("Maximum value of imageCb:", np.max(reconstructed_imageRGB[:,:,2]))
