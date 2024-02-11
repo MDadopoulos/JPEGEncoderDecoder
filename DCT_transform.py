@@ -55,7 +55,7 @@ def iBlockDCT(dctBlock):
 
 if __name__ == "__main__":
     # Example usage DCT transform
-    block = np.random.rand(8, 8)*255  # Example 8x8 block
+    block = np.random.randint(0, 256, size=(8, 8))
     dctBlock = blockDCT(block)
     print("Original block:")
     print(block)
