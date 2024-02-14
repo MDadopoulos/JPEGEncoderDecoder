@@ -101,7 +101,7 @@ def huffDec(huffStream, huffman_table_DC,huffman_table_AC):
                     # If the number is negative, convert to 2's complement
                     symbol = symbol - (1 << category) + 1
                     #the EXTEND procedure
-                    symbol = extend(symbol, category)
+                symbol = extend(symbol, category)
                 
                 huffStream = huffStream[category:]
             runSymbols.append((0, symbol))
