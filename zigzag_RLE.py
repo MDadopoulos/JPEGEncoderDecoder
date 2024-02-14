@@ -80,3 +80,24 @@ def irunLength(runSymbols, DCpred):
         ac_index += 1
 
     return qBlock
+
+
+if __name__ == "__main__" :
+
+    qBlock = np.random.randint(-128, 129, size=(8, 8))
+    print("Original block:")
+    print(qBlock)
+    
+    # Example usage of run-length encoding
+    # Assume qBlock is an 8x8 quantized block of DCT coefficients,
+    # and DCpred is the predicted DC coefficient from the previous block.
+
+    DCpred = 0  # Example DC coefficient prediction
+    runSymbols = runLength(qBlock, DCpred)
+    print("Run-length symbols:")
+    print(runSymbols)
+    decoded_qBlock = irunLength(runSymbols, DCpred)
+    print("Decoded qBlock:")
+    print(decoded_qBlock)
+    
+   

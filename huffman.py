@@ -36,7 +36,7 @@ def get_low_order_bits(DIFF, SSSS):
 
 # This is typically used in the Huffman decoding process where `value` is the additional bits
 # that were used along with the Huffman code to represent the quantized coefficient.
-# The `category` (SSSS) is the number of additional bits used, derived from the Huffman code.
+# The `category` (SSSS=T) is the number of additional bits used, derived from the Huffman code.
 
 def extend(value, T):
     """
@@ -49,7 +49,7 @@ def extend(value, T):
     int: The extended value.
     """
     Vt = 2 ** (T - 1)
-    if value < Vt:
+    if value < Vt and value>0 :
         return value - (2 ** T) + 1
     else:
         return value
@@ -69,7 +69,7 @@ def huffEnc(runSymbols, huffman_table_DC,huffman_table_AC):
     huffStream = ''
     for index,values in enumerate(runSymbols):
         run=values[0]
-        symbol=int(values[1])
+        symbol=values[1]
         category = calculate_category(symbol)
         lowOrderBits=get_low_order_bits(symbol, category)
         if index==0:
@@ -120,10 +120,39 @@ def huffDec(huffStream, huffman_table_DC,huffman_table_AC):
                     # If the number is negative, convert to 2's complement
                     symbol = symbol - (1 << SSSS) + 1
                     #the EXTEND procedure
-                    symbol = extend(symbol, SSSS)
+                symbol = extend(symbol, SSSS)
                 
                 huffStream = huffStream[SSSS:]
                 runSymbols.append((R, symbol))
                 break
     return runSymbols
 
+
+if __name__ == "__main__" :
+
+    from zigzag_RLE import runLength
+    from zigzag_RLE import irunLength
+    from huffman_tables import huffman_table_DC_luminance
+    from huffman_tables import huffman_table_AC_luminance
+
+    qBlock = np.random.randint(-128, 129, size=(8, 8))
+    print("Original block:")
+    print(qBlock)
+    # Assume qBlock is an 8x8 quantized block of DCT coefficients,
+    # and DCpred is the predicted DC coefficient from the previous block.
+
+    DCpred = 0  # Example DC coefficient prediction
+    runSymbols = runLength(qBlock, DCpred)
+    print("runSymbols")
+    print(runSymbols)
+    huffStream=huffEnc(runSymbols, huffman_table_DC_luminance,huffman_table_AC_luminance)
+    print("huffStream")
+    print(huffStream)
+    runSymbol=huffDec(huffStream, huffman_table_DC_luminance,huffman_table_AC_luminance)
+    print("runSymbol")
+    print(runSymbol)
+    decoded_qBlock = irunLength(runSymbol, DCpred)
+    print("decoded_qBlock")
+    print(decoded_qBlock)
+    
+    

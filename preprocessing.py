@@ -109,6 +109,7 @@ def convert2rgb(imageY, imageCr, imageCb, subimg):
     
     # Apply the inverse transformation matrix to each pixel
     imageRGB = np.dot(offset_imageYCrCb, T_inv.T)
+    imageRGB = np.round(imageRGB).astype(int)
     # Convert to RGB with OpenCV
     #imageRGB = cv2.cvtColor(imageYCrCb, cv2.COLOR_YCrCb2RGB)
     #cv2.COLOR_YCR_CB2BGR
@@ -140,11 +141,7 @@ def ensure_dimensions(image, multiple_of=8):
 
 
 if __name__ == "__main__":
-    from preprocessing import convert2ycrcb, convert2rgb, ensure_dimensions
-
-    import cv2
-    import numpy as np
-
+    
     # Read image
     original_imageRGB = cv2.imread('baboon.png')
     #cv2.imshow('original',original_imageRGB)
@@ -152,34 +149,10 @@ if __name__ == "__main__":
     resized_imageRGB = ensure_dimensions(original_imageRGB)
 
     subimg = [4, 2, 2]  # Example subsampling matrix
-    print(resized_imageRGB[:,:,1])
-    print("Minimum value of imageY:", np.min(resized_imageRGB[:,:,0]))
-    print("Maximum value of imageY:", np.max(resized_imageRGB[:,:,0]))
-          
-    print("Minimum value of imageCr:", np.min(resized_imageRGB[:,:,1]))
-    print("Maximum value of imageCr:", np.max(resized_imageRGB[:,:,1]))
-    print("Minimum value of imageCb:", np.min(resized_imageRGB[:,:,2]))
-    print("Maximum value of imageCb:", np.max(resized_imageRGB[:,:,2]))
-
+    print(resized_imageRGB[:,:,0])
     imageY, imageCr, imageCb = convert2ycrcb(resized_imageRGB, subimg)
-    print("Minimum value of imageY:", np.min(imageY))
-    print("Maximum value of imageY:", np.max(imageY))
 
-    print("Minimum value of imageCr:", np.min(imageCr))
-    print("Maximum value of imageCr:", np.max(imageCr))
-    print(type(imageCb))
-    print("Minimum value of imageCb:", np.min(imageCb))
-    print("Maximum value of imageCb:", np.max(imageCb))
     #print(min(imageCr),max(imageCr))
     reconstructed_imageRGB = convert2rgb(imageY, imageCr, imageCb, subimg)
     #cv2.imshow('reconstructed',reconstructed_imageRGB)
-    print(reconstructed_imageRGB[:,:,1])
-    print(type(reconstructed_imageRGB[1,1,1]))
-    print("Minimum value of imageY:", np.min(reconstructed_imageRGB[:,:,0]))
-    print("Maximum value of imageY:", np.max(reconstructed_imageRGB[:,:,0]))
-
-    print("Minimum value of imageCr:", np.min(reconstructed_imageRGB[:,:,1]))
-    print("Maximum value of imageCr:", np.max(reconstructed_imageRGB[:,:,1]))
-    print(type(imageCb[2,2]))
-    print("Minimum value of imageCb:", np.min(reconstructed_imageRGB[:,:,2]))
-    print("Maximum value of imageCb:", np.max(reconstructed_imageRGB[:,:,2]))
+    print(reconstructed_imageRGB[:,:,0])

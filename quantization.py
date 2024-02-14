@@ -13,7 +13,7 @@ def quantizeJPEG(dctBlock, qTable, qScale):
     numpy.ndarray: The quantized DCT coefficients of the block.
     """
     # Perform quantization
-    qBlock = np.round(dctBlock / (qTable * qScale))
+    qBlock = np.round(dctBlock / (qTable * qScale)).astype(int)
     return qBlock
 
 
@@ -72,13 +72,11 @@ if __name__ == "__main__" :
 
     # Quantization and Dequantization
     qBlock = quantizeJPEG(dctBlock, luminance_qTable, qScale)
-    dequantizedDctBlock = dequantizeJPEG(qBlock, luminance_qTable, qScale)
-    reconstructed =iBlockDCT(dctBlock)
     print("Quantized Block:")
     print(qBlock)
-    #here in quantization not perfectly quantized..error in dewuantization
+    dequantizedDctBlock = dequantizeJPEG(qBlock, luminance_qTable, qScale)
     print("\nDequantized DCT Block:")
     print(dequantizedDctBlock)
+    reconstructed =iBlockDCT(dctBlock)
     print("reconstructed block")
     print(reconstructed)
-
