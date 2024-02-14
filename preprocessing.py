@@ -89,6 +89,11 @@ def convert2rgb(imageY, imageCr, imageCb, subimg):
     else:
         raise ValueError("Unsupported subsampling format. Choose from '4:4:4', '4:2:2', '4:2:0'.")
     
+    # Ensure all images have the same depth
+    imgY = imgY.astype('int32')
+    imgCr = imgCr.astype('int32')
+    imgCb = imgCb.astype('int32')
+
     # Merge and convert back to RGB
     imageYCrCb = cv2.merge((imgY, imgCr, imgCb))
     
