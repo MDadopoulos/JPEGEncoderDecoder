@@ -115,6 +115,9 @@ def JPEGencode(img,  qScale, subImg):
     # Create a JPEGtables object
     tables = JPEGtables()
 
+    # Append the  tables to the JPEGenc list
+    JPEGenc.append(tables)
+
     # Ensure the image has the correct dimensions
     resized_img = ensure_dimensions(img)
 
@@ -130,29 +133,56 @@ def JPEGencode(img,  qScale, subImg):
     return tuple(JPEGenc)
 
 def JPEGdecode(JPEGenc):
+    """
+    Decodes an image using the JPEG standard.
+    Parameters:
+    JPEGenc: A touple with N+1 elements, where N is the number of blocks in the image.
+    Returns:
+    numpy.ndarray: The reconstructed image.
+    """
+
     # Retrieve quantization tables
-    qTableL = JPEGenc[0]
-    qTableC = JPEGenc[1]
+    qTableL = JPEGenc[0].qTableL
+    qTableC = JPEGenc[0].qTableC
     
     # Retrieve DC and AC coefficients
-    DCL = JPEGenc[2]
-    DCC = JPEGenc[3]
-    ACL = JPEGenc[4]
-    ACC = JPEGenc[5]
+    DCL = JPEGenc[0].DCL
+    DCC = JPEGenc[0].DCC
+    ACL = JPEGenc[0].ACL
+    ACC = JPEGenc[0].ACC
     
     # Initialize list for reconstructed image
     imgRec = []
     
-    # Iterate over blocks in the JPEGenc tuple
-    for blkType, indHor, indVer, huffStream in JPEGenc[6:]:
-        # Decode the huffStream to obtain the block
+    # Decode each channel
+    for i in range(1, len(JPEGenc)):
+        # Retrieve block type and indices
+        blkType = JPEGenc[i].blkType
+        indHor = JPEGenc[i].indHor
+        indVer = JPEGenc[i].indVer
+        huffStream = JPEGenc[i].huffStream
         
-        # Dequantize the block using the appropriate quantization table
-        
-        # Inverse DCT on the block
-        
-        # Append the block to the reconstructed image list
-        imgRec.append((blkType, indHor, indVer, block))
+        # Decode Huffman stream
+        if blkType == "Y":
+            runSymbols = huffDec(huffStream, DCL, ACL)
+            DCpred = 0
+            quantized_Y = irunLength(runSymbols, DCpred)
+            iDCT_Y = dequantize_channel(quantized_Y, qTableL, 1)
+            imgRec.append(iBlockDCT(iDCT_Y))
+        elif blkType == "Cr":
+            runSymbols = huffDec(huffStream, DCC, ACC)
+            DCpred = 0
+            quantized_Cr = irunLength(runSymbols, DCpred)
+            iDCT_Cr = dequantize_channel(quantized_Cr, qTableC, 1)
+            imgRec.append(iBlockDCT(iDCT_Cr))
+        elif blkType == "Cb":
+            runSymbols = huffDec(huffStream, DCC, ACC)
+            DCpred = 0
+            quantized_Cb = irunLength(runSymbols, DCpred)
+            iDCT_Cb = dequantize_channel(quantized_Cb, qTableC, 1)
+            imgRec.append(iBlockDCT(iDCT_Cb))
+        else:
+            print("Invalid block type")
     
     # Return the reconstructed image
     return imgRec
