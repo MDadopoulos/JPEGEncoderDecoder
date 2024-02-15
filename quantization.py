@@ -1,7 +1,46 @@
 import numpy as np
 
 
-luminance_qTable = np.array([
+
+def quantizeJPEG(dctBlock, qTable, qScale):
+    """
+    Quantizes DCT coefficients of a block using the given quantization table and scale.
+
+    Parameters:
+    dctBlock (numpy.ndarray): The DCT coefficients of the block.
+    qTable (numpy.ndarray): The quantization table.
+    qScale (float): The quantization scale.
+
+    Returns:
+    numpy.ndarray: The quantized DCT coefficients of the block.
+    """
+    
+
+    # Perform quantization
+    qBlock = np.round(dctBlock / (qTable * qScale)).astype(int)
+    return qBlock
+
+
+def dequantizeJPEG(qBlock, qTable, qScale):
+    """
+    Dequantizes the quantized DCT coefficients of a block using the given quantization table and scale.
+
+    Parameters:
+    qBlock (numpy.ndarray): The quantized DCT coefficients of the block.
+    qTable (numpy.ndarray): The quantization table.
+    qScale (float): The quantization scale.
+
+    Returns:
+    numpy.ndarray: The dequantized DCT coefficients of the block.
+    """
+
+    # Perform dequantization
+    dctBlock = qBlock * (qTable * qScale)
+    return dctBlock
+
+if __name__ == "__main__" : 
+
+    luminance_qTable = np.array([
         [16, 11, 10, 16, 24, 40, 51, 61],
         [12, 12, 14, 19, 26, 58, 60, 55],
         [14, 13, 16, 24, 40, 57, 69, 56],
@@ -12,7 +51,7 @@ luminance_qTable = np.array([
         [72, 92, 95, 98, 112, 100, 103, 99]
     ])
 
-chrominance_qTable = np.array([
+    chrominance_qTable = np.array([
         [17, 18, 24, 47, 99, 99, 99, 99],
         [18, 21, 26, 66, 99, 99, 99, 99],
         [24, 26, 56, 99, 99, 99, 99, 99],
@@ -24,51 +63,6 @@ chrominance_qTable = np.array([
     ])
 
 
-def quantizeJPEG(dctBlock, luminance, qScale):
-    """
-    Quantizes DCT coefficients of a block using the given quantization table and scale.
-
-    Parameters:
-    dctBlock (numpy.ndarray): The DCT coefficients of the block.
-    luminance (bool): Whether the block is a luminance block or not.
-    qScale (float): The quantization scale.
-
-    Returns:
-    numpy.ndarray: The quantized DCT coefficients of the block.
-    """
-    
-    #Choose the correct quantization table.
-    if luminance == True:
-        qTable = luminance_qTable
-    else:
-        qTable = chrominance_qTable
-    # Perform quantization
-    qBlock = np.round(dctBlock / (qTable * qScale)).astype(int)
-    return qBlock
-
-
-def dequantizeJPEG(qBlock, luminance, qScale):
-    """
-    Dequantizes the quantized DCT coefficients of a block using the given quantization table and scale.
-
-    Parameters:
-    qBlock (numpy.ndarray): The quantized DCT coefficients of the block.
-    luminance (bool): Whether the block is a luminance block or not.
-    qScale (float): The quantization scale.
-
-    Returns:
-    numpy.ndarray: The dequantized DCT coefficients of the block.
-    """
-    #Choose the correct quantization table.
-    if luminance == True:
-        qTable = luminance_qTable
-    else:
-        qTable = chrominance_qTable
-    # Perform dequantization
-    dctBlock = qBlock * (qTable * qScale)
-    return dctBlock
-
-if __name__ == "__main__" : 
 
     from DCT_transform import blockDCT
     from DCT_transform import iBlockDCT
@@ -83,10 +77,10 @@ if __name__ == "__main__" :
     qScale = 1  # Example scale
 
     # Quantization and Dequantization
-    qBlock = quantizeJPEG(dctBlock, True, qScale)
+    qBlock = quantizeJPEG(dctBlock, luminance_qTable, qScale)
     print("Quantized Block:")
     print(qBlock)
-    dequantizedDctBlock = dequantizeJPEG(qBlock, True, qScale)
+    dequantizedDctBlock = dequantizeJPEG(qBlock, luminance_qTable, qScale)
     print("\nDequantized DCT Block:")
     print(dequantizedDctBlock)
     reconstructed =iBlockDCT(dctBlock)
