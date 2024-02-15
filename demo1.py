@@ -10,13 +10,13 @@ import numpy as np
 
 
 
-def DCT_quantize_channel(image_channel,qScale,luminance):
+def DCT_quantize_channel(image_channel,qTable,qScale):
     """
     Apply DCT and quantization to an image channel.
     Parameters:
     image_channel (numpy.ndarray): The image channel to be processed.
     qScale (float): The quantization scale.
-    luminance (bool): Whether the channel is a luminance channel or not.
+    qTable (numpy.ndarray): The quantization table.
     Returns:
     numpy.ndarray: The quantized channel.
     """ 
@@ -30,17 +30,17 @@ def DCT_quantize_channel(image_channel,qScale,luminance):
             #apply DCT to each 8x8 block
             DCT_channel[i:i+8, j:j+8] = blockDCT(image_channel[i:i+8, j:j+8])
             #apply quantization to each 8x8 block
-            quantized_channel[i:i+8, j:j+8] = quantizeJPEG(DCT_channel[i:i+8, j:j+8], luminance, qScale)
+            quantized_channel[i:i+8, j:j+8] = quantizeJPEG(DCT_channel[i:i+8, j:j+8], qTable, qScale)
     
     return quantized_channel
     
-def dequantize_channel(quantized_channel,qScale,luminance):
+def dequantize_channel(quantized_channel,qTable,qScale):
     """
     Dequantize and apply inverse DCT to an image channel.
     Parameters:
     quantized_channel (numpy.ndarray): The quantized channel to be processed.
     qScale (float): The quantization scale.
-    luminance (bool): Whether the channel is a luminance channel or not.
+    qTable (numpy.ndarray): The quantization table.
     Returns:
     numpy.ndarray: The dequantized channel.
     """ 
@@ -51,7 +51,7 @@ def dequantize_channel(quantized_channel,qScale,luminance):
     for i in range(0, len(quantized_channel), 8):
         for j in range(0, len(quantized_channel[0]), 8):
             #apply dequantization to each 8x8 block
-            dequantized_channel[i:i+8, j:j+8] = dequantizeJPEG(quantized_channel[i:i+8, j:j+8], luminance, qScale)
+            dequantized_channel[i:i+8, j:j+8] = dequantizeJPEG(quantized_channel[i:i+8, j:j+8], qTable, qScale)
             #apply inverse DCT to each 8x8 block
             iDCT_channel[i:i+8, j:j+8] = iBlockDCT(dequantized_channel[i:i+8, j:j+8])
     
@@ -65,6 +65,30 @@ if __name__ == "__main__" :
     subimg2 = [4, 4, 4]
     qscale1=0.6
     qscale2=5
+
+
+    luminance_qTable = np.array([
+        [16, 11, 10, 16, 24, 40, 51, 61],
+        [12, 12, 14, 19, 26, 58, 60, 55],
+        [14, 13, 16, 24, 40, 57, 69, 56],
+        [14, 17, 22, 29, 51, 87, 80, 62],
+        [18, 22, 37, 56, 68, 109, 103, 77],
+        [24, 35, 55, 64, 81, 104, 113, 92],
+        [49, 64, 78, 87, 103, 121, 120, 101],
+        [72, 92, 95, 98, 112, 100, 103, 99]
+    ])
+
+    chrominance_qTable = np.array([
+        [17, 18, 24, 47, 99, 99, 99, 99],
+        [18, 21, 26, 66, 99, 99, 99, 99],
+        [24, 26, 56, 99, 99, 99, 99, 99],
+        [47, 66, 99, 99, 99, 99, 99, 99],
+        [99, 99, 99, 99, 99, 99, 99, 99],
+        [99, 99, 99, 99, 99, 99, 99, 99],
+        [99, 99, 99, 99, 99, 99, 99, 99],
+        [99, 99, 99, 99, 99, 99, 99, 99]
+    ])
+
 
     # Read images and display
     image1 = cv2.imread('baboon.png')
@@ -95,27 +119,31 @@ if __name__ == "__main__" :
     plt.show()
 
     # Apply DCT and quantization to the luminance channel
-    quantized_image1Y = DCT_quantize_channel(image1Y,qscale1,True)
-    quantized_image2Y = DCT_quantize_channel(image2Y,qscale2,True)
+    quantized_image1Y = DCT_quantize_channel(image1Y,luminance_qTable,qscale1)
+    quantized_image2Y = DCT_quantize_channel(image2Y,luminance_qTable,qscale2)
 
     # Apply DCT and quantization to the chrominance channels
-    quantized_image1Cr = DCT_quantize_channel(image1Cr,qscale1,False)
-    quantized_image1Cb = DCT_quantize_channel(image1Cb,qscale1,False)
-    quantized_image2Cr = DCT_quantize_channel(image2Cr,qscale2,False)
-    quantized_image2Cb = DCT_quantize_channel(image2Cb,qscale2,False)
+    quantized_image1Cr = DCT_quantize_channel(image1Cr,chrominance_qTable,qscale1)
+    quantized_image1Cb = DCT_quantize_channel(image1Cb,chrominance_qTable,qscale1)
+    quantized_image2Cr = DCT_quantize_channel(image2Cr,chrominance_qTable,qscale2)
+    quantized_image2Cb = DCT_quantize_channel(image2Cb,chrominance_qTable,qscale2)
 
     # Dequantize and apply inverse DCT to the luminance channel
-    dequantized_image1Y = dequantize_channel(quantized_image1Y,qscale1,True)
-    dequantized_image2Y = dequantize_channel(quantized_image2Y,qscale2,True)
+    dequantized_image1Y = dequantize_channel(quantized_image1Y,luminance_qTable,qscale1)
+    dequantized_image2Y = dequantize_channel(quantized_image2Y,luminance_qTable,qscale2)
 
     # Dequantize and apply inverse DCT to the chrominance channels
-    dequantized_image1Cr = dequantize_channel(quantized_image1Cr,qscale1,False)
-    dequantized_image1Cb = dequantize_channel(quantized_image1Cb,qscale1,False)
-    dequantized_image2Cr = dequantize_channel(quantized_image2Cr,qscale2,False)
-    dequantized_image2Cb = dequantize_channel(quantized_image2Cb,qscale2,False)
+    dequantized_image1Cr = dequantize_channel(quantized_image1Cr,chrominance_qTable,qscale1)
+    dequantized_image1Cb = dequantize_channel(quantized_image1Cb,chrominance_qTable,qscale1)
+    dequantized_image2Cr = dequantize_channel(quantized_image2Cr,chrominance_qTable,qscale2)
+    dequantized_image2Cb = dequantize_channel(quantized_image2Cb,chrominance_qTable,qscale2)
 
     # Convert back to RGB and display
     dequantized_image1RGB = convert2rgb(dequantized_image1Y, dequantized_image1Cr, dequantized_image1Cb, subimg1)
     dequantized_image2RGB = convert2rgb(dequantized_image2Y, dequantized_image2Cr, dequantized_image2Cb, subimg2)
 
+    plt.imshow(dequantized_image1RGB)
+    plt.show()
+    plt.imshow(dequantized_image2RGB)
+    plt.show()
     
