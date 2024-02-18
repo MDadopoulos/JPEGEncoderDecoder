@@ -71,12 +71,14 @@ def huffEnc(runSymbols, huffman_table_DC,huffman_table_AC):
         run=values[0]
         symbol=values[1]
         category = calculate_category(symbol)
-        lowOrderBits=get_low_order_bits(symbol, category)
         if index==0:
             huffCode = huffman_table_DC[category]
         else:
             huffCode = huffman_table_AC[(run,category)]
-        huffStream += huffCode + lowOrderBits
+        huffStream += huffCode 
+        if symbol != 0:
+            lowOrderBits=get_low_order_bits(symbol, category)
+            huffStream +=  lowOrderBits
     return huffStream
 
 
@@ -89,7 +91,6 @@ def huffDec(huffStream, huffman_table_DC,huffman_table_AC):
     runSymbols = []
     for category, huffCode in huffman_table_DC.items():
         if huffStream.startswith(huffCode):
-            #the DECODE procedure
             huffStream = huffStream[len(huffCode):]
             if category == 0:
                 symbol = 0
@@ -113,16 +114,19 @@ def huffDec(huffStream, huffman_table_DC,huffman_table_AC):
                 huffStream = huffStream[len(huffCode):]
                 R = category[0]
                 SSSS=category[1]
-                #the RECEIVE procedure
-                additionalBits = huffStream[:SSSS]
-                symbol = int(additionalBits, 2) 
-                if additionalBits[0] == '0':
-                    # If the number is negative, convert to 2's complement
-                    symbol = symbol - (1 << SSSS) + 1
-                    #the EXTEND procedure
-                symbol = extend(symbol, SSSS)
-                
-                huffStream = huffStream[SSSS:]
+                if SSSS == 0:
+                    symbol = 0
+                else:
+                    #the RECEIVE procedure
+                    additionalBits = huffStream[:SSSS]
+                    symbol = int(additionalBits, 2) 
+                    if additionalBits[0] == '0':
+                        # If the number is negative, convert to 2's complement
+                        symbol = symbol - (1 << SSSS) + 1
+                        #the EXTEND procedure
+                    symbol = extend(symbol, SSSS)
+                    
+                    huffStream = huffStream[SSSS:]
                 runSymbols.append((R, symbol))
                 break
     return runSymbols
