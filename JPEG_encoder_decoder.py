@@ -38,6 +38,13 @@ class JPEGtables:
     ACC = huffman_table_AC_chrominance
 
 
+    def reset_highfreq(self):
+        high_freq_positions = [(i // 8, i % 8) for i in [20 , 40 , 50 ,60 , 63]]
+        for position in high_freq_positions:
+            self.qTableL[position] = 9999
+            self.qTableC[position] = 9999
+
+
 
 class JPEGencoded:
     def __init__(self,blkType,  indVer, indHor, huffStream):
@@ -122,6 +129,7 @@ def JPEGencode(img,  qScale, subImg):
 
     # Create a JPEGtables object
     tables = JPEGtables()
+    tables.reset_highfreq()
 
     # Append the  tables to the JPEGenc list
     JPEGenc.append(tables)
@@ -266,21 +274,86 @@ def JPEGdecode(JPEGenc,qScale):
 
 if __name__ == "__main__" :
 
-    # Load the image
-    img = cv2.imread('baboon.png')
-    image_RGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    
-    plt.imshow(image_RGB)
+    # Load the images and display
+    image1 = cv2.imread('baboon.png')
+    image1_RGB = cv2.cvtColor(image1, cv2.COLOR_BGR2RGB)
+    image2 = cv2.imread('lena_color_512.png')
+    image2_RGB = cv2.cvtColor(image2, cv2.COLOR_BGR2RGB)
+    plt.imshow(image1_RGB)
+    plt.title("Original Image 1")
     plt.show()
+    plt.imshow(image2_RGB)
+    plt.title("Original Image 2")
+    plt.show()
+
+    # Define the quantization scales
+    qScales = [0.1 , 0.3 , 0.6 , 1.0 , 2 , 5 , 10]
+
+    # Define the subsampling factors
+    subimg1 = [4, 2, 2]  
+    subimg2 = [4, 4, 4]
+
+    # Initialize the list to store the MSE values and the number of bits of the encoded images
+    mse_values = [ [] , [] ]
+    num_bits = [ [] , [] ]
+
+    # Loop through the quantization scales
+    for qScale in qScales:
+        # Encode the image 1
+        JPEGenc1=JPEGencode(image1_RGB,  qScale, subimg1)
+        imgRec1=JPEGdecode(JPEGenc1,qScale)
+        mse = np.mean((image1_RGB - imgRec1) ** 2)
+        mse_values[0].append(mse)
+        bits = 0
+        for block in JPEGenc1[1:]:
+            bits += len(block.huffStream)
+        num_bits[0].append(bits)
+        plt.imshow(imgRec1)
+        plt.title("Reconstructed Image 1 with qscale = "+str(qScale))
+        plt.show()
+        print("Number of bits in the encoded image 1 :", bits)
+
+        # Encode the image 2
+        JPEGenc2=JPEGencode(image2_RGB,  qScale, subimg2)
+        imgRec2=JPEGdecode(JPEGenc2,qScale)
+        mse = np.mean((image2_RGB - imgRec2) ** 2)
+        mse_values[1].append(mse)
+        bits = 0
+        for block in JPEGenc2[1:]:
+            bits += len(block.huffStream)
+        num_bits[1].append(bits)
+        plt.imshow(imgRec2)
+        plt.title("Reconstructed Image 2 with qscale = "+str(qScale))
+        plt.show()
+        print("Number of bits in the encoded image 2 :", bits)
+
 
     # Define the quantization scale
     qScale = 1
+        
+    # Define the quantization scale
+    qScale = 1
 
-    # Define the subsampling factor
-    subImg = [4, 4, 4]
+    # Plot the MSE values for image 1 and image 2 with respect to the quantization scales
+    plt.plot(qScales, mse_values[0], label='Image 1')
+    plt.xlabel('Quantization Scale')
+    plt.ylabel('Mean Square Error')
+    plt.title('Mean Square Error vs. Quantization Scale')
+    plt.show()
+    plt.plot(qScales, mse_values[1], label='Image 2')
+    plt.xlabel('Quantization Scale')
+    plt.ylabel('Mean Square Error')
+    plt.title('Mean Square Error vs. Quantization Scale')
+    plt.show()
 
-    # Encode the image
-    JPEGenc=JPEGencode(image_RGB,  qScale, subImg)
-    imgRec=JPEGdecode(JPEGenc,qScale)
-    plt.imshow(imgRec)
+    # Plot the number of bits for image 1 and image 2 with respect to the quantization scales
+    plt.plot(qScales, num_bits[0], label='Image 1')
+    plt.xlabel('Quantization Scale')
+    plt.ylabel('Number of Bits')
+    plt.title('Number of Bits vs. Quantization Scale')
+    plt.show()
+    plt.plot(qScales, num_bits[1], label='Image 2')
+    plt.xlabel('Quantization Scale')
+    plt.ylabel('Number of Bits')
+    plt.title('Number of Bits vs. Quantization Scale')
     plt.show()

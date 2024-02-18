@@ -83,6 +83,6 @@ if __name__ == "__main__" :
     dequantizedDctBlock = dequantizeJPEG(qBlock, luminance_qTable, qScale)
     print("\nDequantized DCT Block:")
     print(dequantizedDctBlock)
-    reconstructed =iBlockDCT(dctBlock)
+    reconstructed =iBlockDCT(dequantizedDctBlock)
     print("reconstructed block")
     print(reconstructed)
