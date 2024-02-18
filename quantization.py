@@ -36,7 +36,7 @@ def dequantizeJPEG(qBlock, qTable, qScale):
 
     # Perform dequantization
     dctBlock = qBlock * (qTable * qScale)
-    return dctBlock
+    return np.int32(dctBlock)
 
 if __name__ == "__main__" : 
 
