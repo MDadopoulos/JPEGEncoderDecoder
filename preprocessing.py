@@ -118,6 +118,10 @@ def convert2rgb(imageY, imageCr, imageCb, subimg):
     # Convert to RGB with OpenCV
     #imageRGB = cv2.cvtColor(imageYCrCb, cv2.COLOR_YCrCb2RGB)
     #cv2.COLOR_YCR_CB2BGR
+
+    # Clip the values to the valid range
+    imageRGB =  np.clip(imageRGB, 0, 255)
+
     return imageRGB
 
 def ensure_dimensions(image, multiple_of=8):
