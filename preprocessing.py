@@ -135,9 +135,11 @@ def ensure_dimensions(image, multiple_of=8):
     Returns:
     numpy.ndarray: The resized image with dimensions as multiples of the given number.
     """
+    # Determine the new dimensions
     width, height = image.shape[:2]
     new_width = width - (width % multiple_of)
     new_height = height - (height % multiple_of)
+    # Crop the image to the new dimensions
     diff_width = width - new_width
     diff_height = height - new_height
     left = diff_width // 2

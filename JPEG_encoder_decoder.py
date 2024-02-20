@@ -157,9 +157,11 @@ def retrieve_subImg(JPEGenc):
     subImg (list): 1x3 matrix for subsampling [4, 2, 0], [4, 2, 2], [4, 4, 4].
     """
 
+    # Count the number of blocks for each channel
     blocksY = len(list(filter(lambda obj:  obj.blkType == "Y" , JPEGenc[1:])))
     blocksCr = len(list(filter(lambda obj:  obj.blkType == "Cr" , JPEGenc[1:])))
     blocksCb = len(list(filter(lambda obj:  obj.blkType == "Cb" , JPEGenc[1:])))
+    # Determine the subsampling format
     if blocksY == blocksCr and blocksY == blocksCb:
         subImg = [4, 4, 4]
     elif blocksY == 2 * blocksCr and blocksY == 2 * blocksCb:
