@@ -51,7 +51,7 @@ def iBlockDCT(dctBlock):
     shift_value = 2 ** (P - 1)
     DctBlock=reconstructedBlock + shift_value
 
-    return np.clip(DctBlock, 0, 255)
+    return DctBlock
 
 if __name__ == "__main__":
     # Example usage DCT transform
@@ -61,8 +61,6 @@ if __name__ == "__main__":
     print(block)
     print("\nDCT block:")
     print(dctBlock)
-    print(np.min(dctBlock),np.max(dctBlock))
     reconstructed_block = iBlockDCT(dctBlock)
     print("\nReconstructed block:")
     print(reconstructed_block)
-    print(np.min(reconstructed_block),np.max(reconstructed_block))
