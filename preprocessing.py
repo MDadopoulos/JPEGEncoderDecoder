@@ -154,7 +154,8 @@ def ensure_dimensions(image, multiple_of=8):
 if __name__ == "__main__":
     
     # Read image
-    original_imageRGB = cv2.imread('baboon.png')
+    image = cv2.imread('baboon.png')
+    original_imageRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     #cv2.imshow('original',original_imageRGB)
     # Ensure dimensions are multiples of 8
     resized_imageRGB = ensure_dimensions(original_imageRGB)

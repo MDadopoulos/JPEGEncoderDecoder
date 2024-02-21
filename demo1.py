@@ -96,8 +96,10 @@ if __name__ == "__main__" :
     image2 = cv2.imread('lena_color_512.png')
     image2_RGB = cv2.cvtColor(image2, cv2.COLOR_BGR2RGB)
     plt.imshow(image1_RGB)
+    plt.title("Original Image 1")
     plt.show()
     plt.imshow(image2_RGB)
+    plt.title("Original Image 2")
     plt.show()
 
     # Ensure dimensions are multiples of 8
@@ -114,8 +116,10 @@ if __name__ == "__main__" :
     image1RGB_from_YCrCb = convert2rgb(image1Y, image1Cr, image1Cb, subimg1)
     image2RGB_from_YCrCb = convert2rgb(image2Y, image2Cr, image2Cb, subimg2)
     plt.imshow(image1RGB_from_YCrCb)
+    plt.title("Reconstructed Image 1 from YCrCb")
     plt.show()
     plt.imshow(image2RGB_from_YCrCb)
+    plt.title("Reconstructed Image 2 from YCrCb")
     plt.show()
 
     # Apply DCT and quantization to the luminance channel
@@ -143,7 +147,9 @@ if __name__ == "__main__" :
     dequantized_image2RGB = convert2rgb(dequantized_image2Y, dequantized_image2Cr, dequantized_image2Cb, subimg2)
 
     plt.imshow(dequantized_image1RGB)
+    plt.title("Reconstructed Image 1 from DCT and quantization")
     plt.show()
     plt.imshow(dequantized_image2RGB)
+    plt.title("Reconstructed Image 2 from DCT and quantization")
     plt.show()
     

@@ -70,12 +70,15 @@ def huffEnc(runSymbols, huffman_table_DC,huffman_table_AC):
     for index,values in enumerate(runSymbols):
         run=values[0]
         symbol=values[1]
+        # Calculate the category for the symbol
         category = calculate_category(symbol)
+        # Encode the category and symbol using the Huffman table
         if index==0:
             huffCode = huffman_table_DC[category]
         else:
             huffCode = huffman_table_AC[(run,category)]
         huffStream += huffCode 
+        # Encode the additional bits if the category is not 0
         if symbol != 0:
             lowOrderBits=get_low_order_bits(symbol, category)
             huffStream +=  lowOrderBits
