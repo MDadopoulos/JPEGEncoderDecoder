@@ -304,7 +304,7 @@ if __name__ == "__main__" :
         # Encode the image 1
         JPEGenc1=JPEGencode(image1_RGB,  qScale, subimg1)
         imgRec1=JPEGdecode(JPEGenc1,qScale)
-        mse = np.mean((image1_RGB - imgRec1) ** 2)
+        mse = np.mean((ensure_dimensions(image1_RGB) - imgRec1) ** 2)
         mse_values[0].append(mse)
         bits = 0
         for block in JPEGenc1[1:]:
@@ -318,7 +318,7 @@ if __name__ == "__main__" :
         # Encode the image 2
         JPEGenc2=JPEGencode(image2_RGB,  qScale, subimg2)
         imgRec2=JPEGdecode(JPEGenc2,qScale)
-        mse = np.mean((image2_RGB - imgRec2) ** 2)
+        mse = np.mean((ensure_dimensions(image2_RGB) - imgRec2) ** 2)
         mse_values[1].append(mse)
         bits = 0
         for block in JPEGenc2[1:]:
